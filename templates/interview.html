@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="interview-container">
+    <h2>Interview Session</h2>
+    <p>Round: {{ round_type }}</p>
+    <p>Company: {{ company_name }}</p>
+    <p>Role: {{ role }}</p>
+    <textarea id="chatbox" readonly></textarea>
+    <input type="text" id="user_input" placeholder="Type your message...">
+    <button id="send_message">Send</button>
+</div>
+{% endblock %}

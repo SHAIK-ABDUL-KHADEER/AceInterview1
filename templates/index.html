@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AceInterview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            width: 90%;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to AceInterview</h1>
+        <form id="upload-form">
+            <div class="form-group">
+                <label for="resume">Upload Resume:</label>
+                <input type="file" id="resume" name="resume" required>
+            </div>
+            <div class="form-group">
+                <label for="round_type">Select Interview Round:</label>
+                <select id="round_type" name="round_type" required>
+                    <option value="HR">HR</option>
+                    <option value="TR">Technical</option>
+                    <option value="MR">Managerial</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="company_name">Select Company:</label>
+                <select id="company_name" name="company_name" required>
+                    <option value="TCS">TCS</option>
+                    <option value="Amazon">Amazon</option>
+                    <option value="Accenture">Accenture</option>
+                    <option value="Not Specific">Not Specific</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="user_role">Enter Role:</label>
+                <input type="text" id="user_role" name="user_role">
+            </div>
+            <button type="submit">Upload Resume</button>
+        </form>
+        <div id="output">
+            <h3>Interview Session</h3>
+            <textarea id="interview-output" readonly></textarea>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('upload-form');
+        const output = document.getElementById('interview-output');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            // Upload Resume
+            const response = await fetch('/upload_resume', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                output.value = data.message;
+
+                // Start Interview
+                const round_type = formData.get('round_type');
+                const company_name = formData.get('company_name');
+                const user_role = formData.get('user_role');
+                const interviewResponse = await fetch('/start_interview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        resume_text: data.resume_text,
+                        round_type: round_type,
+                        company_name: company_name,
+                        user_role: user_role
+                    })
+                });
+                const interviewData = await interviewResponse.json();
+                if (interviewData.success) {
+                    output.value += `\nInterview Started: ${interviewData.response}`;
+                } else {
+                    output.value += `\nError: ${interviewData.message}`;
+                }
+            } else {
+                output.value = `Error: ${data.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
